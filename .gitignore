@@ -1,0 +1,50 @@
+node_modules/
+.pnpm-store/
+dist/
+out/
+coverage/
+playwright-report/
+test-results/
+.vite/
+*.log
+*.tsbuildinfo
+
+# 本地运行态、浏览器会话、自动化缓存和验收证据不得进入版本库。
+.runtime/
+.local-logs/
+.playwright-cli/
+.tmp/
+output/
+**/.runtime/
+**/.tmp/
+**/.artifacts/
+**/user-data*/
+**/browser-profiles/
+**/auth-state/
+
+# 本地数据库、证书和私钥文件只允许由部署环境受控注入。
+*.db
+*.db-*
+*.sqlite
+*.sqlite3
+*.pem
+*.key
+*.p12
+*.pfx
+
+.env
+.env.*
+!.env.example
+
+# 本地开发密钥，禁止进入 Git、构建上下文和发布产物。
+deepseek doubao key.txt
+
+# 本地媒体登录与浏览器资料，后续 EXE 阶段仍保持忽略。
+browser-profiles/
+auth-state/
+
+# Prisma Client 由本地 db:generate 生成，禁止把生成物作为源码提交。
+services/api/src/generated/
+
+.DS_Store
+Thumbs.db

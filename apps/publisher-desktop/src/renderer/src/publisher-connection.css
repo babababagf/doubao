@@ -1,0 +1,43 @@
+.content > header {
+  position: relative;
+}
+
+.head-actions input {
+  width: 105px;
+  min-height: 36px;
+  padding: 0 9px;
+  border: 1px solid #395477;
+  border-radius: 7px;
+  outline: none;
+  color: #edf2ff;
+  background: #0b1930;
+  font-size: 11px;
+}
+
+.head-actions input:focus {
+  border-color: #727af5;
+  box-shadow: 0 0 0 3px rgba(114, 122, 245, .14);
+}
+
+.head-actions .sync {
+  border-color: #7779ff;
+  background: linear-gradient(90deg, #5150db, #8062ee);
+}
+
+.head-actions .secondary {
+  background: transparent;
+}
+
+.head-actions button:disabled {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+.login-error {
+  position: absolute;
+  right: 0;
+  bottom: -22px;
+  margin: 0;
+  color: #ffacb2;
+  font-size: 11px;
+}

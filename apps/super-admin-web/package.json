@@ -1,0 +1,21 @@
+{
+  "name": "@doubaohk/super-admin-web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --mode api",
+    "build": "vue-tsc -b && vite build",
+    "typecheck": "vue-tsc -b --pretty false"
+  },
+  "dependencies": {
+    "@doubaohk/ui-tokens": "workspace:*",
+    "vue": "3.5.41"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "6.0.8",
+    "typescript": "5.9.3",
+    "vite": "8.2.0",
+    "vue-tsc": "3.3.9"
+  }
+}

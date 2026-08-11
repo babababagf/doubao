@@ -1,0 +1,50 @@
+{
+  "name": "doubao-customer-acquisition",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@11.7.0",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev:merchant": "pnpm --filter @doubaohk/merchant-web dev",
+    "dev:merchant:api": "pnpm --filter @doubaohk/merchant-web dev:api",
+    "dev:merchant:isolated": "pnpm --filter @doubaohk/merchant-web dev -- --mode isolated",
+    "dev:super": "pnpm --filter @doubaohk/super-admin-web dev",
+    "dev:super:isolated": "pnpm --filter @doubaohk/super-admin-web dev -- --mode isolated",
+    "dev:tenant": "pnpm --filter @doubaohk/tenant-admin-web dev",
+    "dev:tenant:isolated": "pnpm --filter @doubaohk/tenant-admin-web dev -- --mode isolated",
+    "build:merchant": "pnpm --filter @doubaohk/merchant-web build",
+    "build:super": "pnpm --filter @doubaohk/super-admin-web build",
+    "build:tenant": "pnpm --filter @doubaohk/tenant-admin-web build",
+    "dev:publisher": "pnpm --filter @doubaohk/publisher-desktop dev",
+    "build:publisher": "pnpm --filter @doubaohk/publisher-desktop build",
+    "dev:api": "pnpm --filter @doubaohk/api dev",
+    "dev:ai-worker": "pnpm --filter @doubaohk/api dev:worker",
+    "build:api": "pnpm --filter @doubaohk/api build",
+    "test:api": "pnpm --filter @doubaohk/api test",
+    "db:generate": "pnpm --filter @doubaohk/api db:generate",
+    "db:backup:isolated": "pwsh -NoProfile -File services/api/scripts/backup-isolated-db.ps1",
+    "db:restore:isolated": "pwsh -NoProfile -File services/api/scripts/restore-isolated-db.ps1",
+    "contract:generate": "pnpm --filter @doubaohk/api-contract generate",
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "pnpm --filter @doubaohk/api-contract typecheck && pnpm --filter @doubaohk/merchant-web typecheck && pnpm --filter @doubaohk/super-admin-web typecheck && pnpm --filter @doubaohk/tenant-admin-web typecheck && pnpm --filter @doubaohk/publisher-desktop typecheck && pnpm --filter @doubaohk/api typecheck",
+    "test": "pnpm --filter @doubaohk/merchant-web test && pnpm --filter @doubaohk/publisher-desktop test && pnpm --filter @doubaohk/api test",
+    "check": "pnpm contract:generate && pnpm lint && pnpm typecheck && pnpm test && pnpm build:api && pnpm build:merchant && pnpm build:super && pnpm build:tenant && pnpm build:publisher"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@types/node": "24.13.3",
+    "eslint": "10.8.0",
+    "eslint-plugin-vue": "10.10.0",
+    "globals": "17.9.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.66.0",
+    "vue-eslint-parser": "10.4.1"
+  },
+  "msw": {
+    "workerDirectory": [
+      "apps/merchant-web/public"
+    ]
+  }
+}

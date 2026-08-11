@@ -1,0 +1,1635 @@
+openapi: 3.1.0
+info:
+  title: 豆包获客普通商户网页客户端 API
+  version: 0.1.0
+  description: 普通商户网页客户端真实 API 契约。带 -mock 后缀的历史路径由服务端明确拒绝，仅为旧版本地 UI 测试保留兼容记录，不得用于业务调用。
+servers:
+  - url: /api
+paths:
+  /auth/login:
+    post:
+      operationId: merchantLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: 登录成功
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          $ref: '#/components/responses/ApiError'
+  /auth/logout:
+    post:
+      operationId: merchantLogout
+      responses:
+        '204':
+          description: 已退出
+  /merchant/bootstrap:
+    get:
+      operationId: getMerchantBootstrap
+      responses:
+        '200':
+          description: 当前商户、品牌和会话上下文
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BootstrapResponse'
+        '401':
+          $ref: '#/components/responses/ApiError'
+  /merchant/dashboard:
+    get:
+      operationId: getMerchantDashboard
+      responses:
+        '200':
+          description: 商户控制台可追溯汇总
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardResponse'
+        '401':
+          $ref: '#/components/responses/ApiError'
+  /merchant/profile:
+    get:
+      operationId: getMerchantProfile
+      responses:
+        '200':
+          description: 当前商户唯一企业事实源
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantProfile'
+        '401':
+          $ref: '#/components/responses/ApiError'
+    put:
+      operationId: updateMerchantProfile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileUpdateRequest'
+      responses:
+        '200':
+          description: 已保存并创建新的企业资料版本
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantProfile'
+        '401':
+          $ref: '#/components/responses/ApiError'
+        '422':
+          $ref: '#/components/responses/ApiError'
+  /merchant/keywords:
+    get:
+      operationId: listMerchantKeywords
+      responses:
+        '200':
+          description: 未删除的核心关键词
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MerchantKeyword'
+        '401':
+          $ref: '#/components/responses/ApiError'
+    post:
+      operationId: createMerchantKeyword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateKeywordRequest'
+      responses:
+        '201':
+          description: 已创建关键词
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantKeyword'
+        '401':
+          $ref: '#/components/responses/ApiError'
+        '409':
+          $ref: '#/components/responses/ApiError'
+  /merchant/keywords/{keywordId}:
+    parameters:
+      - $ref: '#/components/parameters/KeywordId'
+    patch:
+      operationId: updateMerchantKeyword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateKeywordRequest'
+      responses:
+        '200':
+          description: 已更新关键词状态
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantKeyword'
+        '401':
+          $ref: '#/components/responses/ApiError'
+        '404':
+          $ref: '#/components/responses/ApiError'
+    delete:
+      operationId: deleteMerchantKeyword
+      responses:
+        '204':
+          description: 已逻辑删除关键词
+        '401':
+          $ref: '#/components/responses/ApiError'
+        '404':
+          $ref: '#/components/responses/ApiError'
+  /merchant/keywords/{keywordId}/questions:
+    parameters:
+      - $ref: '#/components/parameters/KeywordId'
+    get:
+      operationId: listMerchantQuestions
+      responses:
+        '200':
+          description: 指定关键词下未删除的问题词
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MerchantQuestion'
+        '401':
+          $ref: '#/components/responses/ApiError'
+        '404':
+          $ref: '#/components/responses/ApiError'
+    post:
+      operationId: createMerchantQuestion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateQuestionRequest'
+      responses:
+        '201':
+          description: 已手动创建问题词
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantQuestion'
+        '401':
+          $ref: '#/components/responses/ApiError'
+        '409':
+          $ref: '#/components/responses/ApiError'
+  /merchant/keywords/{keywordId}/questions/expand-mock:
+    parameters:
+      - $ref: '#/components/parameters/KeywordId'
+    post:
+      deprecated: true
+      operationId: expandMerchantQuestionsMock
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MockQuestionExpandRequest'
+      responses:
+        '200':
+          description: 历史本地 Mock 路径；服务端拒绝调用。请使用 /expand 创建真实异步任务。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MockQuestionExpandResponse'
+        '401':
+          $ref: '#/components/responses/ApiError'
+        '404':
+          $ref: '#/components/responses/ApiError'
+  /merchant/keywords/{keywordId}/questions/batch:
+    parameters:
+      - $ref: '#/components/parameters/KeywordId'
+    post:
+      operationId: createMerchantQuestionsBatch
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuestionBatchCreateRequest'
+      responses:
+        '201':
+          description: 已批量创建并去重问题词
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuestionBatchCreateResponse'
+        '401':
+          $ref: '#/components/responses/ApiError'
+        '404':
+          $ref: '#/components/responses/ApiError'
+        '409':
+          $ref: '#/components/responses/ApiError'
+  /merchant/keywords/{keywordId}/questions/expand:
+    parameters:
+      - $ref: '#/components/parameters/KeywordId'
+    post:
+      operationId: createQuestionExpansionTask
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuestionExpansionTaskInput'
+      responses:
+        '201':
+          description: 已创建问题词拓展异步任务；仅成功新增的问题词扣 1 算力点
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AiGenerationTask'
+        '401':
+          $ref: '#/components/responses/ApiError'
+        '409':
+          $ref: '#/components/responses/ApiError'
+  /merchant/questions/{questionId}:
+    parameters:
+      - $ref: '#/components/parameters/QuestionId'
+    patch:
+      operationId: updateMerchantQuestion
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateQuestionRequest'
+      responses:
+        '200':
+          description: 已更新问题词状态
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantQuestion'
+        '401':
+          $ref: '#/components/responses/ApiError'
+        '404':
+          $ref: '#/components/responses/ApiError'
+    delete:
+      operationId: deleteMerchantQuestion
+      responses:
+        '204':
+          description: 已逻辑删除问题词
+        '401':
+          $ref: '#/components/responses/ApiError'
+        '404':
+          $ref: '#/components/responses/ApiError'
+  /merchant/knowledge-libraries:
+    get:
+      operationId: listKnowledgeLibraries
+      responses:
+        '200':
+          description: 商户企业信息库
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/KnowledgeLibrary'
+        '401':
+          $ref: '#/components/responses/ApiError'
+    post:
+      operationId: createKnowledgeLibrary
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KnowledgeLibraryInput'
+      responses:
+        '201':
+          description: 已创建信息库
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeLibrary'
+        '401':
+          $ref: '#/components/responses/ApiError'
+  /merchant/knowledge-libraries/{libraryId}:
+    parameters:
+      - $ref: '#/components/parameters/KnowledgeLibraryId'
+    put:
+      operationId: updateKnowledgeLibrary
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KnowledgeLibraryInput'
+      responses:
+        '200':
+          description: 已更新信息库
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeLibrary'
+        '401':
+          $ref: '#/components/responses/ApiError'
+        '404':
+          $ref: '#/components/responses/ApiError'
+    delete:
+      operationId: deleteKnowledgeLibrary
+      responses:
+        '204':
+          description: 已删除信息库
+        '401':
+          $ref: '#/components/responses/ApiError'
+        '404':
+          $ref: '#/components/responses/ApiError'
+  /merchant/galleries:
+    get:
+      operationId: listMerchantGalleries
+      responses:
+        '200':
+          description: 商户企业图库
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MerchantGallery'
+        '401':
+          $ref: '#/components/responses/ApiError'
+    post:
+      operationId: createMerchantGallery
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GalleryInput'
+      responses:
+        '201':
+          description: 已创建图库
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantGallery'
+        '401':
+          $ref: '#/components/responses/ApiError'
+  /merchant/galleries/{galleryId}:
+    parameters:
+      - $ref: '#/components/parameters/GalleryId'
+    put:
+      operationId: updateMerchantGallery
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GalleryInput'
+      responses:
+        '200':
+          description: 已更新图库
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantGallery'
+        '401':
+          $ref: '#/components/responses/ApiError'
+        '404':
+          $ref: '#/components/responses/ApiError'
+    delete:
+      operationId: deleteMerchantGallery
+      responses:
+        '204':
+          description: 已删除图库及其图片元数据
+        '401':
+          $ref: '#/components/responses/ApiError'
+        '404':
+          $ref: '#/components/responses/ApiError'
+  /merchant/galleries/{galleryId}/images:
+    parameters:
+      - $ref: '#/components/parameters/GalleryId'
+    get:
+      operationId: listMerchantGalleryImages
+      responses:
+        '200':
+          description: 图库图片元数据
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GalleryImage'
+        '401':
+          $ref: '#/components/responses/ApiError'
+        '404':
+          $ref: '#/components/responses/ApiError'
+    post:
+      operationId: createMerchantGalleryImageUpload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GalleryImageInput'
+      responses:
+        '201':
+          description: 已创建 5 分钟有效的 OSS 直传会话；尚未产生图片元数据或空间用量
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GalleryImageUploadTicket'
+        '401':
+          $ref: '#/components/responses/ApiError'
+        '404':
+          $ref: '#/components/responses/ApiError'
+  /merchant/galleries/{galleryId}/images/{uploadId}/complete:
+    parameters:
+      - $ref: '#/components/parameters/GalleryId'
+      - $ref: '#/components/parameters/UploadId'
+    post:
+      operationId: completeMerchantGalleryImageUpload
+      responses:
+        '201':
+          description: 对象已完成校验并加入图库
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GalleryImage'
+        '401':
+          $ref: '#/components/responses/ApiError'
+        '404':
+          $ref: '#/components/responses/ApiError'
+        '409':
+          $ref: '#/components/responses/ApiError'
+  /merchant/gallery-images/{imageId}:
+    parameters:
+      - $ref: '#/components/parameters/GalleryImageId'
+    delete:
+      operationId: deleteMerchantGalleryImage
+      responses:
+        '204':
+          description: 已删除图片元数据
+        '401':
+          $ref: '#/components/responses/ApiError'
+        '404':
+          $ref: '#/components/responses/ApiError'
+  /merchant/writing-instructions:
+    get:
+      operationId: listWritingInstructions
+      responses:
+        '200':
+          description: 系统和自定义创作指令
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WritingInstruction'
+        '401':
+          $ref: '#/components/responses/ApiError'
+    post:
+      operationId: createWritingInstruction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WritingInstructionInput'
+      responses:
+        '201':
+          description: 已创建自定义创作指令
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WritingInstruction'
+        '401':
+          $ref: '#/components/responses/ApiError'
+  /merchant/writing-instructions/{instructionId}:
+    parameters:
+      - $ref: '#/components/parameters/WritingInstructionId'
+    put:
+      operationId: updateWritingInstruction
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WritingInstructionInput'
+      responses:
+        '200':
+          description: 已更新自定义创作指令
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WritingInstruction'
+        '401':
+          $ref: '#/components/responses/ApiError'
+        '403':
+          $ref: '#/components/responses/ApiError'
+        '404':
+          $ref: '#/components/responses/ApiError'
+    delete:
+      operationId: deleteWritingInstruction
+      responses:
+        '204':
+          description: 已删除自定义创作指令
+        '401':
+          $ref: '#/components/responses/ApiError'
+        '403':
+          $ref: '#/components/responses/ApiError'
+        '404':
+          $ref: '#/components/responses/ApiError'
+  /merchant/articles:
+    get:
+      operationId: listMerchantArticles
+      responses:
+        '200':
+          description: 商户文章列表，包含真实 AI 生成文章和手动文章
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MerchantArticle'
+        '401':
+          $ref: '#/components/responses/ApiError'
+    post:
+      operationId: createMerchantArticle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArticleInput'
+      responses:
+        '201':
+          description: 已手动创建文章
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantArticle'
+        '401':
+          $ref: '#/components/responses/ApiError'
+        '422':
+          $ref: '#/components/responses/ApiError'
+  /merchant/articles/create-mock:
+    post:
+      deprecated: true
+      operationId: createMerchantArticlesMock
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MockArticleCreateRequest'
+      responses:
+        '201':
+          description: 历史本地 Mock 路径；服务端拒绝调用。请使用 /ai-tasks 创建真实异步任务。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MockArticleCreateResponse'
+        '401':
+          $ref: '#/components/responses/ApiError'
+        '422':
+          $ref: '#/components/responses/ApiError'
+  /merchant/ai-tasks:
+    get:
+      operationId: listMerchantAiTasks
+      responses:
+        '200':
+          description: 商户自己的 AI 任务列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/AiGenerationTask' }
+        '401':
+          $ref: '#/components/responses/ApiError'
+    post:
+      operationId: createMerchantArticleAiTask
+      parameters:
+        - name: Idempotency-Key
+          in: header
+          required: true
+          schema: { type: string, minLength: 8, maxLength: 100 }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ArticleAiTaskInput' }
+      responses:
+        '201':
+          description: 已创建并预占额度的文章创作任务
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AiGenerationTask' }
+        '401':
+          $ref: '#/components/responses/ApiError'
+        '422':
+          $ref: '#/components/responses/ApiError'
+  /merchant/ai-tasks/{taskId}/stop:
+    parameters:
+      - name: taskId
+        in: path
+        required: true
+        schema: { type: string }
+    post:
+      operationId: stopMerchantAiTask
+      responses:
+        '200':
+          description: 已请求停止任务
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AiGenerationTask' }
+        '401':
+          $ref: '#/components/responses/ApiError'
+        '404':
+          $ref: '#/components/responses/ApiError'
+  /merchant/ai-tasks/{taskId}/retryable-questions:
+    parameters:
+      - name: taskId
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      operationId: listMerchantAiTaskRetryableQuestions
+      responses:
+        '200':
+          description: 已结束文章任务中仍未生成、可单篇重试的问题词
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/AiTaskRetryableQuestion' }
+        '401':
+          $ref: '#/components/responses/ApiError'
+        '404':
+          $ref: '#/components/responses/ApiError'
+  /merchant/ai-tasks/{taskId}/retry:
+    parameters:
+      - name: taskId
+        in: path
+        required: true
+        schema: { type: string }
+      - name: Idempotency-Key
+        in: header
+        required: true
+        schema: { type: string, minLength: 8, maxLength: 100 }
+    post:
+      operationId: retryMerchantAiTask
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AiTaskRetryInput' }
+      responses:
+        '201':
+          description: 已创建新的文章重试任务并预占对应额度
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AiGenerationTask' }
+        '401':
+          $ref: '#/components/responses/ApiError'
+        '404':
+          $ref: '#/components/responses/ApiError'
+        '409':
+          $ref: '#/components/responses/ApiError'
+  /merchant/articles/{articleId}:
+    parameters:
+      - $ref: '#/components/parameters/ArticleId'
+    put:
+      operationId: updateMerchantArticle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArticleInput'
+      responses:
+        '200':
+          description: 已更新文章
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantArticle'
+        '401':
+          $ref: '#/components/responses/ApiError'
+        '404':
+          $ref: '#/components/responses/ApiError'
+  /merchant/website:
+    get:
+      operationId: getMerchantWebsite
+      responses:
+        '200':
+          description: 商户当前网站模板与本地生成状态
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantWebsite'
+        '401':
+          $ref: '#/components/responses/ApiError'
+    put:
+      operationId: updateMerchantWebsite
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MerchantWebsiteInput'
+      responses:
+        '200':
+          description: 已保存网站模板选择
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantWebsite'
+        '401':
+          $ref: '#/components/responses/ApiError'
+  /merchant/website/generate-mock:
+    post:
+      deprecated: true
+      operationId: generateMerchantWebsiteMock
+      responses:
+        '200':
+          description: 历史本地 Mock 路径；服务端拒绝调用。请使用 /website/generate 生成本地静态站。
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantWebsite'
+        '401':
+          $ref: '#/components/responses/ApiError'
+  /merchant/website/generate:
+    post:
+      operationId: generateMerchantWebsite
+      responses:
+        '201':
+          description: 已完成本地静态站渲染，可通过本机预览地址核验；尚未发布到自定义域名
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MerchantWebsite'
+        '401':
+          $ref: '#/components/responses/ApiError'
+        '409':
+          $ref: '#/components/responses/ApiError'
+  /merchant/doubao-results:
+    get:
+      operationId: listMerchantDoubaoResults
+      responses:
+        '200':
+          description: 普通商户只读的最近豆包名称命中检测结果
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DoubaoCheckResult'
+        '401':
+          $ref: '#/components/responses/ApiError'
+  /merchant/media-accounts:
+    get:
+      operationId: listMerchantMediaAccounts
+      responses:
+        '200':
+          description: 仅包含本地助手回传的非凭证账号状态
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/MediaAccount' }
+        '401': { $ref: '#/components/responses/ApiError' }
+  /merchant/media-accounts/{platform}/connect-mock:
+    parameters:
+      - $ref: '#/components/parameters/MediaPlatform'
+    post:
+      deprecated: true
+      operationId: requestMediaAccountConnectMock
+      responses:
+        '200':
+          description: 历史本地 Mock 路径；服务端拒绝调用。真实扫码由本地 EXE 助手处理。
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MediaAccount' }
+        '401': { $ref: '#/components/responses/ApiError' }
+  /merchant/publish-tasks:
+    get:
+      operationId: listMerchantPublishTasks
+      responses:
+        '200':
+          description: 商户发布任务
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: '#/components/schemas/PublishTask' }
+        '401': { $ref: '#/components/responses/ApiError' }
+    post:
+      operationId: createMerchantPublishTasks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreatePublishTasksRequest' }
+      responses:
+        '201':
+          description: 已创建按账号分配并带计划时间的发布批次
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreatePublishBatchResponse'
+        '401': { $ref: '#/components/responses/ApiError' }
+        '422': { $ref: '#/components/responses/ApiError' }
+    delete:
+      operationId: deleteMerchantArticle
+      responses:
+        '204':
+          description: 已删除文章
+        '401':
+          $ref: '#/components/responses/ApiError'
+        '404':
+          $ref: '#/components/responses/ApiError'
+components:
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      schema:
+        type: string
+        minLength: 8
+        maxLength: 100
+    KeywordId:
+      name: keywordId
+      in: path
+      required: true
+      schema:
+        type: string
+    QuestionId:
+      name: questionId
+      in: path
+      required: true
+      schema:
+        type: string
+    KnowledgeLibraryId:
+      name: libraryId
+      in: path
+      required: true
+      schema:
+        type: string
+    GalleryId:
+      name: galleryId
+      in: path
+      required: true
+      schema:
+        type: string
+    GalleryImageId:
+      name: imageId
+      in: path
+      required: true
+      schema:
+        type: string
+    UploadId:
+      name: uploadId
+      in: path
+      required: true
+      schema:
+        type: string
+    WritingInstructionId:
+      name: instructionId
+      in: path
+      required: true
+      schema:
+        type: string
+    ArticleId:
+      name: articleId
+      in: path
+      required: true
+      schema:
+        type: string
+    MediaPlatform:
+      name: platform
+      in: path
+      required: true
+      schema: { type: string, enum: [toutiao, douyin] }
+  responses:
+    ApiError:
+      description: 稳定业务错误
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiError'
+  schemas:
+    ApiError:
+      type: object
+      additionalProperties: false
+      required: [code, message, requestId]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        requestId:
+          type: string
+    LoginRequest:
+      type: object
+      additionalProperties: false
+      required: [username, password]
+      properties:
+        username:
+          type: string
+          pattern: '^[A-Za-z0-9]{6,12}$'
+        password:
+          type: string
+          pattern: '^[A-Za-z0-9]{6,12}$'
+    LoginResponse:
+      type: object
+      additionalProperties: false
+      required: [sessionId, expiresAt]
+      properties:
+        sessionId:
+          type: string
+        expiresAt:
+          type: string
+          format: date-time
+    BrandContext:
+      type: object
+      additionalProperties: false
+      required: [nickname, logoUrl, version]
+      properties:
+        nickname:
+          type: string
+        logoUrl:
+          type: string
+        version:
+          type: integer
+          minimum: 1
+    MerchantAccount:
+      type: object
+      additionalProperties: false
+      required: [companyName, username, status, expiresAt]
+      properties:
+        companyName:
+          type: string
+        username:
+          type: string
+        status:
+          type: string
+          enum: [active, expired, disabled]
+        expiresAt:
+          type: string
+          format: date
+    BootstrapResponse:
+      type: object
+      additionalProperties: false
+      required: [brand, account]
+      properties:
+        brand:
+          $ref: '#/components/schemas/BrandContext'
+        account:
+          $ref: '#/components/schemas/MerchantAccount'
+    UsageValue:
+      type: object
+      additionalProperties: false
+      required: [used, limit]
+      properties:
+        used:
+          type: integer
+          minimum: 0
+        limit:
+          type: integer
+          minimum: 0
+    ResourceSummary:
+      type: object
+      additionalProperties: false
+      required: [keywords, computePoints, writing, articleCount, publishCount, imageStorage]
+      properties:
+        keywords:
+          $ref: '#/components/schemas/UsageValue'
+        computePoints:
+          type: object
+          additionalProperties: false
+          required: [available, consumedThisPeriod]
+          properties:
+            available:
+              type: integer
+              minimum: 0
+            consumedThisPeriod:
+              type: integer
+              minimum: 0
+        writing:
+          $ref: '#/components/schemas/UsageValue'
+        articleCount:
+          type: integer
+          minimum: 0
+        publishCount:
+          type: integer
+          minimum: 0
+        imageStorage:
+          type: object
+          additionalProperties: false
+          required: [available, usedBytes, formatted, lastCalibratedAt]
+          properties:
+            available:
+              type: boolean
+            usedBytes:
+              type: integer
+              minimum: 0
+            formatted:
+              type: string
+            lastCalibratedAt:
+              type: string
+              format: date-time
+    EffectSummary:
+      type: object
+      additionalProperties: false
+      required: [questionTotal, doubaoIncludedCount, phoneExposureCount, phoneClickCount]
+      properties:
+        questionTotal:
+          type: integer
+          minimum: 0
+        doubaoIncludedCount:
+          type: integer
+          minimum: 0
+          description: 产品展示为豆包收录数；实际口径是 API 回答中的企业名称命中问题数，不代表官方索引收录。
+        phoneExposureCount:
+          type: integer
+          minimum: 0
+        phoneClickCount:
+          type: integer
+          minimum: 0
+    TrendPoint:
+      type: object
+      additionalProperties: false
+      required: [date, includedCount]
+      properties:
+        date:
+          type: string
+          format: date
+        includedCount:
+          type: integer
+          minimum: 0
+    WorkflowStage:
+      type: object
+      additionalProperties: false
+      required: [key, label, status]
+      properties:
+        key:
+          type: string
+          enum: [profile, questions, articles, publish, doubao]
+        label:
+          type: string
+        status:
+          type: string
+          enum: [complete, current, pending]
+    RecentTask:
+      type: object
+      additionalProperties: false
+      required: [id, type, title, detail, status, occurredAt]
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum: [ai_article, publish, doubao_check, phone_followup, media_sync, gallery_upload]
+        title:
+          type: string
+        detail:
+          type: string
+        status:
+          type: string
+          enum: [queued, running, succeeded, failed, stopped]
+        occurredAt:
+          type: string
+          format: date-time
+    DashboardResponse:
+      type: object
+      additionalProperties: false
+      required: [resources, effects, inclusionTrend, workflow, recentTasks, lastCheckedAt]
+      properties:
+        resources:
+          $ref: '#/components/schemas/ResourceSummary'
+        effects:
+          $ref: '#/components/schemas/EffectSummary'
+        inclusionTrend:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrendPoint'
+        workflow:
+          type: array
+          minItems: 5
+          maxItems: 5
+          items:
+            $ref: '#/components/schemas/WorkflowStage'
+        recentTasks:
+          type: array
+          items:
+            $ref: '#/components/schemas/RecentTask'
+        lastCheckedAt:
+          type: string
+          format: date-time
+          nullable: true
+    MerchantProfile:
+      type: object
+      additionalProperties: false
+      required: [companyName, aliases, industry, coreBusiness, serviceAreas, introduction, advantages, products, address, phone, wechat, businessHours, credentials, cases, proofMaterials, version, updatedAt]
+      properties:
+        companyName:
+          type: string
+        aliases:
+          type: array
+          items: { type: string }
+        industry:
+          type: string
+        coreBusiness:
+          type: string
+        serviceAreas:
+          type: array
+          items: { type: string }
+        introduction:
+          type: string
+        advantages:
+          type: array
+          items: { type: string }
+        products:
+          type: array
+          items: { type: string }
+        address:
+          type: string
+        phone:
+          type: string
+        wechat:
+          type: string
+        businessHours:
+          type: string
+        credentials:
+          type: array
+          items: { type: string }
+        cases:
+          type: array
+          items: { type: string }
+        proofMaterials:
+          type: array
+          items: { type: string }
+        version:
+          type: integer
+          minimum: 1
+        updatedAt:
+          type: string
+          format: date-time
+    ProfileUpdateRequest:
+      type: object
+      additionalProperties: false
+      required: [companyName, aliases, industry, coreBusiness, serviceAreas, introduction, advantages, products, address, phone, wechat, businessHours, credentials, cases, proofMaterials]
+      properties:
+        companyName: { type: string, minLength: 2, maxLength: 120 }
+        aliases: { type: array, items: { type: string }, maxItems: 8 }
+        industry: { type: string, maxLength: 80 }
+        coreBusiness: { type: string, maxLength: 300 }
+        serviceAreas: { type: array, items: { type: string }, maxItems: 20 }
+        introduction: { type: string, maxLength: 6000 }
+        advantages: { type: array, items: { type: string }, maxItems: 30 }
+        products: { type: array, items: { type: string }, maxItems: 50 }
+        address: { type: string, maxLength: 300 }
+        phone: { type: string, maxLength: 50 }
+        wechat: { type: string, maxLength: 80 }
+        businessHours: { type: string, maxLength: 120 }
+        credentials: { type: array, items: { type: string }, maxItems: 30 }
+        cases: { type: array, items: { type: string }, maxItems: 50 }
+        proofMaterials: { type: array, items: { type: string }, maxItems: 50 }
+    MerchantKeyword:
+      type: object
+      additionalProperties: false
+      required: [id, name, brandTerms, status, questionTotal, uncreatedCount, checkedCount, createdAt]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        brandTerms:
+          type: array
+          maxItems: 20
+          items: { type: string, minLength: 1, maxLength: 120 }
+        status: { type: string, enum: [enabled, disabled] }
+        questionTotal: { type: integer, minimum: 0 }
+        uncreatedCount: { type: integer, minimum: 0 }
+        checkedCount: { type: integer, minimum: 0 }
+        createdAt: { type: string, format: date-time }
+    CreateKeywordRequest:
+      type: object
+      additionalProperties: false
+      required: [name, brandTerms]
+      properties:
+        name: { type: string, minLength: 2, maxLength: 80 }
+        brandTerms:
+          type: array
+          minItems: 1
+          maxItems: 20
+          items: { type: string, minLength: 1, maxLength: 120 }
+    UpdateKeywordRequest:
+      type: object
+      additionalProperties: false
+      properties:
+        name: { type: string, minLength: 2, maxLength: 80 }
+        brandTerms:
+          type: array
+          minItems: 1
+          maxItems: 20
+          items: { type: string, minLength: 1, maxLength: 120 }
+        status: { type: string, enum: [enabled, disabled] }
+    MerchantQuestion:
+      type: object
+      additionalProperties: false
+      required: [id, keywordId, text, status, articleCreated, checkedAt, createdAt]
+      properties:
+        id: { type: string }
+        keywordId: { type: string }
+        text: { type: string }
+        status: { type: string, enum: [enabled, disabled] }
+        articleCreated: { type: boolean }
+        checkedAt: { type: [string, 'null'], format: date-time }
+        createdAt: { type: string, format: date-time }
+    CreateQuestionRequest:
+      type: object
+      additionalProperties: false
+      required: [text]
+      properties:
+        text: { type: string, minLength: 6, maxLength: 180 }
+    QuestionBatchCreateRequest:
+      type: object
+      additionalProperties: false
+      required: [texts]
+      properties:
+        texts:
+          type: array
+          minItems: 1
+          maxItems: 500
+          items: { type: string, minLength: 6, maxLength: 180 }
+    QuestionBatchCreateResponse:
+      type: object
+      additionalProperties: false
+      required: [createdCount, skippedDuplicateCount]
+      properties:
+        createdCount: { type: integer, minimum: 0 }
+        skippedDuplicateCount: { type: integer, minimum: 0 }
+    UpdateQuestionRequest:
+      type: object
+      additionalProperties: false
+      required: [status]
+      properties:
+        status: { type: string, enum: [enabled, disabled] }
+    MockQuestionExpandRequest:
+      type: object
+      additionalProperties: false
+      required: [count]
+      properties:
+        count: { type: integer, minimum: 1, maximum: 20 }
+    MockQuestionExpandResponse:
+      type: object
+      additionalProperties: false
+      required: [createdCount, skippedDuplicateCount, mockNotice, questions]
+      properties:
+        createdCount: { type: integer, minimum: 0 }
+        skippedDuplicateCount: { type: integer, minimum: 0 }
+        mockNotice: { type: string }
+        questions:
+          type: array
+          items:
+            $ref: '#/components/schemas/MerchantQuestion'
+    QuestionExpansionTaskInput:
+      type: object
+      additionalProperties: false
+      required: [count]
+      properties:
+        count: { type: integer, minimum: 1, maximum: 20 }
+    KnowledgeLibraryCategory:
+      type: string
+      enum: [product_service, product_feature, brand_story, user_pain_point, trust_proof, customer_case, other]
+    KnowledgeLibrary:
+      type: object
+      additionalProperties: false
+      required: [id, name, companyName, brandAlias, productServices, productFeatures, brandStory, userPainPoints, trustProof, customerCases, otherInfo, createdAt, updatedAt]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        companyName: { type: string }
+        brandAlias: { type: string }
+        productServices: { type: string }
+        productFeatures: { type: string }
+        brandStory: { type: string }
+        userPainPoints: { type: string }
+        trustProof: { type: string }
+        customerCases: { type: string }
+        otherInfo: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    KnowledgeLibraryInput:
+      type: object
+      additionalProperties: false
+      required: [name, companyName, brandAlias, productServices, productFeatures, brandStory, userPainPoints, trustProof, customerCases, otherInfo]
+      properties:
+        name: { type: string, minLength: 2, maxLength: 100 }
+        companyName: { type: string, minLength: 2, maxLength: 120 }
+        brandAlias: { type: string, minLength: 1, maxLength: 80 }
+        productServices: { type: string, maxLength: 1000 }
+        productFeatures: { type: string, maxLength: 1000 }
+        brandStory: { type: string, maxLength: 1000 }
+        userPainPoints: { type: string, maxLength: 1000 }
+        trustProof: { type: string, maxLength: 1000 }
+        customerCases: { type: string, maxLength: 1000 }
+        otherInfo: { type: string, maxLength: 1000 }
+    MerchantGallery:
+      type: object
+      additionalProperties: false
+      required: [id, name, description, imageCount, createdAt, updatedAt]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        description: { type: string }
+        imageCount: { type: integer, minimum: 0 }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    GalleryInput:
+      type: object
+      additionalProperties: false
+      required: [name, description]
+      properties:
+        name: { type: string, minLength: 2, maxLength: 100 }
+        description: { type: string, maxLength: 400 }
+    GalleryImage:
+      type: object
+      additionalProperties: false
+      required: [id, galleryId, fileName, mimeType, sizeBytes, formattedSize, createdAt]
+      properties:
+        id: { type: string }
+        galleryId: { type: string }
+        fileName: { type: string }
+        mimeType: { type: string }
+        sizeBytes: { type: integer, minimum: 0 }
+        formattedSize: { type: string }
+        url: { type: [string, 'null'], format: uri }
+        createdAt: { type: string, format: date-time }
+    GalleryImageInput:
+      type: object
+      additionalProperties: false
+      required: [fileName, mimeType, sizeBytes]
+      properties:
+        fileName: { type: string, minLength: 1, maxLength: 260 }
+        mimeType: { type: string, maxLength: 100 }
+        sizeBytes: { type: integer, minimum: 0 }
+    GalleryImageUploadTicket:
+      type: object
+      additionalProperties: false
+      required: [uploadId, uploadUrl, method, headers, expiresAt]
+      properties:
+        uploadId: { type: string }
+        uploadUrl: { type: string, format: uri }
+        method: { type: string, enum: [PUT] }
+        headers:
+          type: object
+          additionalProperties: { type: string }
+        expiresAt: { type: string, format: date-time }
+    WritingInstruction:
+      type: object
+      additionalProperties: false
+      required: [id, name, content, isSystem, createdAt, updatedAt]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        content: { type: string }
+        isSystem: { type: boolean }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    WritingInstructionInput:
+      type: object
+      additionalProperties: false
+      required: [name, content]
+      properties:
+        name: { type: string, minLength: 2, maxLength: 100 }
+        content: { type: string, minLength: 20, maxLength: 8000 }
+    ArticleSource:
+      type: string
+      enum: [ai_mock, ai_generated, manual]
+    ArticleStatus:
+      type: string
+      enum: [draft, pending_review, publishable, disabled]
+    MerchantArticle:
+      type: object
+      additionalProperties: false
+      required: [id, title, content, source, status, keywordId, knowledgeLibraryIds, galleryId, imageCount, galleryImageIds, instructionId, currentVersion, createdAt, updatedAt]
+      properties:
+        id: { type: string }
+        title: { type: string }
+        content: { type: string }
+        source: { $ref: '#/components/schemas/ArticleSource' }
+        status: { $ref: '#/components/schemas/ArticleStatus' }
+        keywordId: { type: [string, 'null'] }
+        knowledgeLibraryIds: { type: array, items: { type: string } }
+        galleryId: { type: [string, 'null'] }
+        imageCount: { type: integer, minimum: 0, maximum: 3 }
+        galleryImageIds:
+          type: array
+          maxItems: 3
+          uniqueItems: true
+          items: { type: string }
+        instructionId: { type: [string, 'null'] }
+        currentVersion: { type: integer, minimum: 1 }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    ArticleInput:
+      type: object
+      additionalProperties: false
+      required: [title, content, status, galleryId, galleryImageIds]
+      properties:
+        title: { type: string, minLength: 2, maxLength: 150 }
+        content: { type: string, minLength: 20, maxLength: 30000 }
+        status: { $ref: '#/components/schemas/ArticleStatus' }
+        galleryId: { type: [string, 'null'] }
+        galleryImageIds:
+          type: array
+          maxItems: 3
+          uniqueItems: true
+          items: { type: string }
+    MockArticleCreateRequest:
+      type: object
+      additionalProperties: false
+      required: [keywordId, knowledgeLibraryIds, galleryId, imageCount, instructionId, contentDirection, count]
+      properties:
+        keywordId: { type: string }
+        knowledgeLibraryIds: { type: array, maxItems: 20, items: { type: string } }
+        galleryId: { type: [string, 'null'] }
+        imageCount: { type: integer, minimum: 0, maximum: 3 }
+        instructionId: { type: [string, 'null'] }
+        contentDirection: { $ref: '#/components/schemas/ArticleContentDirection' }
+        count: { type: integer, minimum: 1, maximum: 100 }
+    MockArticleCreateResponse:
+      type: object
+      additionalProperties: false
+      required: [createdCount, mockNotice, articles]
+      properties:
+        createdCount: { type: integer, minimum: 0 }
+        mockNotice: { type: string }
+        articles:
+          type: array
+          items: { $ref: '#/components/schemas/MerchantArticle' }
+    ArticleAiTaskInput:
+      type: object
+      additionalProperties: false
+      required: [keywordId, knowledgeLibraryId, galleryId, imageCount, contentDirection, count]
+      properties:
+        keywordId: { type: string }
+        knowledgeLibraryId: { type: [string, 'null'] }
+        galleryId: { type: [string, 'null'] }
+        imageCount: { type: integer, minimum: 0, maximum: 3 }
+        instructionId: { type: [string, 'null'] }
+        contentDirection: { $ref: '#/components/schemas/ArticleContentDirection' }
+        count: { type: integer, minimum: 1, maximum: 100 }
+    ArticleContentDirection:
+      type: string
+      description: 自动混合会在任务问题词之间稳定轮换不同内容方向；其余值固定整批任务方向。
+      enum: [mixed, marketing, ranking, education, qa, selection_guide, case_study, industry_trend, local_service]
+    AiGenerationTask:
+      type: object
+      additionalProperties: false
+      required: [id, type, status, totalCount, completedCount, failedCount, computePointsReserved, writingReserved, failureReason, retryOfTaskId, createdAt, startedAt, completedAt]
+      properties:
+        id: { type: string }
+        type: { type: string, enum: [article_writing, question_expansion] }
+        status: { type: string, enum: [queued, running, succeeded, partially_failed, failed, stopped] }
+        totalCount: { type: integer, minimum: 0 }
+        completedCount: { type: integer, minimum: 0 }
+        failedCount: { type: integer, minimum: 0 }
+        computePointsReserved: { type: integer, minimum: 0 }
+        writingReserved: { type: integer, minimum: 0 }
+        failureReason: { type: [string, 'null'] }
+        retryOfTaskId: { type: [string, 'null'], description: '当前任务重试自的原文章任务；首次任务为空' }
+        createdAt: { type: string, format: date-time }
+        startedAt: { type: [string, 'null'], format: date-time }
+        completedAt: { type: [string, 'null'], format: date-time }
+    AiTaskRetryInput:
+      type: object
+      additionalProperties: false
+      properties:
+        questionId: { type: [string, 'null'], description: '指定时仅重试该问题词；为空时重试全部未生成问题词' }
+    AiTaskRetryableQuestion:
+      type: object
+      additionalProperties: false
+      required: [id, text, taskFailureReason]
+      properties:
+        id: { type: string }
+        text: { type: string }
+        taskFailureReason: { type: [string, 'null'] }
+    WebsiteTemplate:
+      type: string
+      enum: [minimal_enterprise, local_store, brand_content]
+    MerchantWebsite:
+      type: object
+      additionalProperties: false
+      required: [template, hostname, status, lastGeneratedAt, version, profileVersion, previewUrl, storageState, artifactUploadedAt]
+      properties:
+        template: { $ref: '#/components/schemas/WebsiteTemplate' }
+        hostname: { type: [string, 'null'] }
+        status: { type: string, enum: [not_generated, local_ready, published] }
+        lastGeneratedAt: { type: [string, 'null'], format: date-time }
+        version: { type: integer, minimum: 1 }
+        profileVersion: { type: [integer, 'null'], minimum: 1, description: '本次网站生成引用的企业资料版本；未生成时为空' }
+        previewUrl: { type: [string, 'null'] }
+        storageState: { type: string, enum: [local_only, uploaded], description: '当前生成版本是否已完整写入所属贴牌对象存储；uploaded 不等于域名已切换发布' }
+        artifactUploadedAt: { type: [string, 'null'], format: date-time }
+    MerchantWebsiteInput:
+      type: object
+      additionalProperties: false
+      required: [template]
+      properties:
+        template: { $ref: '#/components/schemas/WebsiteTemplate' }
+    DoubaoCheckResult:
+      type: object
+      additionalProperties: false
+      required: [id, question, answer, sources, matched, matchedName, checkedAt, apiStatus, failureReason]
+      properties:
+        id: { type: string }
+        question: { type: string }
+        answer: { type: string }
+        sources:
+          type: array
+          maxItems: 12
+          items:
+            type: object
+            additionalProperties: false
+            required: [title, url]
+            properties:
+              title: { type: string, maxLength: 200 }
+              url: { type: string, format: uri }
+        matched: { type: boolean }
+        matchedName: { type: [string, 'null'] }
+        checkedAt: { type: [string, 'null'], format: date-time }
+        apiStatus: { type: string, enum: [pending, running, succeeded, failed] }
+        failureReason: { type: [string, 'null'] }
+    MediaAccount:
+      type: object
+      additionalProperties: false
+      required: [id, platform, status, maskedName, localReferenceId, lastVerifiedAt, lastHeartbeatAt, failureReason, backupAvailable, backupCapturedAt]
+      properties:
+        id: { type: [string, 'null'] }
+        platform: { type: string, enum: [toutiao, douyin] }
+        status: { type: string, enum: [connected, expired, verification_required, unbound, connection_requested] }
+        maskedName: { type: [string, 'null'] }
+        localReferenceId: { type: [string, 'null'] }
+        lastVerifiedAt: { type: [string, 'null'], format: date-time }
+        lastHeartbeatAt: { type: [string, 'null'], format: date-time }
+        failureReason: { type: [string, 'null'] }
+        backupAvailable: { type: boolean, description: '是否存在可跨电脑恢复的加密平台会话备份' }
+        backupCapturedAt: { type: [string, 'null'], format: date-time }
+    PublishTask:
+      type: object
+      additionalProperties: false
+      required: [id, batchId, articleId, articleVersion, articleTitle, platform, mediaAccountId, mediaAccountName, status, scheduledAt, createdAt, completedAt, failureReason, attentionReason, canResume, attemptCount]
+      properties:
+        id: { type: string }
+        batchId: { type: [string, 'null'] }
+        articleId: { type: string }
+        articleVersion: { type: [integer, 'null'], minimum: 1 }
+        articleTitle: { type: string }
+        platform: { type: string, enum: [toutiao, douyin] }
+        mediaAccountId: { type: [string, 'null'] }
+        mediaAccountName: { type: [string, 'null'] }
+        status: { type: string, enum: [scheduled, queued, running, attention, succeeded, failed, stopped] }
+        scheduledAt: { type: string, format: date-time }
+        createdAt: { type: string, format: date-time }
+        completedAt: { type: [string, 'null'], format: date-time }
+        failureReason: { type: [string, 'null'] }
+        attentionReason: { type: [string, 'null'], enum: [login_required, captcha_required, manual_confirmation, platform_changed, assets_missing, content_invalid, fill_failed, submission_unknown, submission_rejected, lease_expired, null] }
+        canResume: { type: boolean, description: '仅表示登录或提交前验证码异常可在目标账号重新验证成功后由本地发布助手自动续发' }
+        attemptCount: { type: integer, minimum: 0 }
+    CreatePublishTasksRequest:
+      type: object
+      additionalProperties: false
+      required: [articleIds, platforms, mediaAccountIds, publishCount, deduplicationMode, dailyLimits]
+      properties:
+        articleIds: { type: array, minItems: 1, maxItems: 100, uniqueItems: true, items: { type: string } }
+        platforms: { type: array, minItems: 1, maxItems: 2, items: { type: string, enum: [toutiao, douyin] } }
+        mediaAccountIds: { type: array, minItems: 1, maxItems: 40, uniqueItems: true, items: { type: string } }
+        publishCount: { type: integer, minimum: 1, maximum: 100 }
+        deduplicationMode: { type: string, enum: [per_platform, all_platforms] }
+        dailyLimits:
+          type: object
+          additionalProperties: false
+          required: [toutiao, douyin]
+          properties:
+            toutiao: { type: integer, minimum: 1, maximum: 100, default: 3 }
+            douyin: { type: integer, minimum: 1, maximum: 100, default: 3 }
+    CreatePublishBatchResponse:
+      type: object
+      additionalProperties: false
+      required: [batchId, createdTaskCount, skippedDuplicateCount, estimatedTaskCount, tasks]
+      properties:
+        batchId: { type: string }
+        createdTaskCount: { type: integer, minimum: 1 }
+        skippedDuplicateCount: { type: integer, minimum: 0 }
+        estimatedTaskCount: { type: integer, minimum: 1 }
+        tasks: { type: array, items: { $ref: '#/components/schemas/PublishTask' } }

@@ -1,0 +1,52 @@
+{
+  "name": "@doubaohk/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "dev": "nest start --watch",
+    "dev:worker": "nest start --watch --entryFile worker",
+    "start": "node dist/src/main.js",
+    "start:isolated-test-api": "node scripts/start-isolated-api.cjs",
+    "start:isolated-test-worker": "node scripts/start-isolated-worker.cjs",
+    "start:worker": "node dist/src/worker.js",
+    "build": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run src test/provider-config.service.spec.ts",
+    "test:integration": "vitest run test",
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev",
+    "db:seed": "tsx prisma/seed.ts"
+  },
+  "dependencies": {
+    "@fastify/cookie": "11.1.2",
+    "@nestjs/common": "11.1.28",
+    "@nestjs/config": "4.0.4",
+    "@nestjs/core": "11.1.28",
+    "@nestjs/platform-fastify": "11.1.28",
+    "@prisma/adapter-pg": "7.9.1",
+    "@prisma/client": "7.9.1",
+    "ali-oss": "^6.23.0",
+    "argon2": "0.45.1",
+    "bullmq": "^6.0.8",
+    "fastify": "5.10.0",
+    "ioredis": "^6.0.0",
+    "nunjucks": "^3.2.4",
+    "pg": "8.16.3",
+    "reflect-metadata": "0.2.2",
+    "sanitize-html": "^2.17.6",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "11.0.24",
+    "@nestjs/testing": "11.1.28",
+    "@types/node": "24.13.3",
+    "@types/nunjucks": "^3.2.6",
+    "@types/pg": "8.15.5",
+    "@types/sanitize-html": "^2.16.1",
+    "prisma": "7.9.1",
+    "tsx": "4.21.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.10"
+  }
+}

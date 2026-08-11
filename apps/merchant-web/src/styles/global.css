@@ -1,0 +1,241 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  color-scheme: light;
+  --color-canvas: #f3f5f9;
+  --color-canvas-elevated: #ffffff;
+  --color-shell: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-strong: #ffffff;
+  --color-surface-soft: #f7f8fc;
+  --color-border: #e5e8f0;
+  --color-border-strong: #d7dce8;
+  --color-text: #1f2937;
+  --color-text-secondary: #5f6b7c;
+  --color-text-muted: #929bab;
+  --color-primary: #5c67ea;
+  --color-primary-bright: #7b64ef;
+  --color-primary-soft: #eef0ff;
+  --color-cyan: #399bd6;
+  --color-teal: #18b78f;
+  --color-success: #1dbb91;
+  --color-warning: #e5a13b;
+  --color-danger: #ef6c80;
+  --color-champagne: #6c6fe8;
+  --gradient-primary: linear-gradient(135deg, #6274f2 0%, #8064ee 100%);
+  --gradient-chart: linear-gradient(90deg, #6682f4 0%, #8067ee 100%);
+  --gradient-panel: #ffffff;
+  --shadow-panel: 0 2px 10px rgba(31, 42, 68, 0.055);
+  --shadow-focus: 0 0 0 3px rgba(98, 116, 242, 0.14);
+  --radius-sm: 5px;
+  --radius-md: 7px;
+  --radius-lg: 10px;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+  background: var(--color-canvas);
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  color: var(--color-text);
+  background: var(--color-canvas);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid #8b8fff;
+  outline-offset: 3px;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+.surface-panel {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: #ffffff;
+  box-shadow: var(--shadow-panel);
+}
+
+html.light-admin .eyebrow,
+html.light-admin .panel-kicker,
+html.light-admin .card-kicker {
+  color: #7a74df;
+}
+
+html.light-admin .primary-button,
+html.light-admin .create-button,
+html.light-admin .icon-button.is-primary {
+  border-color: #6672ed;
+  color: #ffffff;
+  background: var(--gradient-primary);
+  box-shadow: 0 4px 12px rgba(91, 103, 225, 0.16);
+}
+
+html.light-admin .secondary-button,
+html.light-admin .compact-button,
+html.light-admin .state-button {
+  border-color: #d9deea;
+  color: #596579;
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(28, 39, 66, 0.03);
+}
+
+html.light-admin .secondary-button:hover,
+html.light-admin .compact-button:hover,
+html.light-admin .state-button:hover {
+  border-color: #7581ed;
+  color: #5d68df;
+  background: #f8f9ff;
+}
+
+html.light-admin .danger {
+  border-color: #f2cfd6;
+  color: #e76378;
+  background: #fff7f8;
+}
+
+html.light-admin input:not([type='checkbox']):not([type='radio']),
+html.light-admin textarea,
+html.light-admin select {
+  border-color: #dfe3ec;
+  color: var(--color-text);
+  background-color: #ffffff;
+}
+
+html.light-admin input::placeholder,
+html.light-admin textarea::placeholder {
+  color: #adb5c2;
+}
+
+html.light-admin input:focus,
+html.light-admin textarea:focus,
+html.light-admin select:focus {
+  border-color: #7180ee;
+}
+
+html.light-admin .count-badge,
+html.light-admin .status-pill,
+html.light-admin .version-chip,
+html.light-admin .asset-count {
+  border-color: #d9dcfa;
+  color: #646ddd;
+  background: #f2f3ff;
+}
+
+html.light-admin .search-field,
+html.light-admin .instruction-item,
+html.light-admin .library-item,
+html.light-admin .article-item,
+html.light-admin .task-history-item,
+html.light-admin .asset-card,
+html.light-admin .pick,
+html.light-admin .image-count button {
+  border-color: #e4e7ee;
+  color: var(--color-text);
+  background: #ffffff;
+}
+
+html.light-admin .instruction-item:hover,
+html.light-admin .instruction-item.is-selected,
+html.light-admin .library-item:hover,
+html.light-admin .library-item.is-selected,
+html.light-admin .article-item:hover,
+html.light-admin .article-item.is-selected,
+html.light-admin .keyword-item:hover,
+html.light-admin .keyword-item.is-selected,
+html.light-admin .task-history-item.selected,
+html.light-admin .pick:has(input:checked) {
+  border-color: #cfd4fb;
+  color: var(--color-text);
+  background: #f1f3ff;
+}
+
+html.light-admin .mock-expand,
+html.light-admin .cost-box,
+html.light-admin .asset-picker,
+html.light-admin .boundary-notice,
+html.light-admin .notice-panel,
+html.light-admin .mock-notice,
+html.light-admin .notice,
+html.light-admin .data-boundary,
+html.light-admin .asset-note,
+html.light-admin .system-lock {
+  border-color: #dde1f7;
+  color: var(--color-text-secondary);
+  background: #f8f9ff;
+}
+
+html.light-admin .skeleton span,
+html.light-admin .skeleton-list span,
+html.light-admin .keyword-skeleton span,
+html.light-admin .question-loading span,
+html.light-admin .image-skeleton span,
+html.light-admin .asset-loading span {
+  background: linear-gradient(90deg, #f0f2f6, #e5e8ee, #f0f2f6);
+  background-size: 220% 100%;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+::selection {
+  color: #ffffff;
+  background: rgba(91, 103, 225, 0.72);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

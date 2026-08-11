@@ -1,0 +1,928 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum TenantKind {
+  WHITE_LABEL
+  AGENT
+  MERCHANT
+}
+
+enum UserRole {
+  PLATFORM_ADMIN
+  WHITE_LABEL_ADMIN
+  AGENT_ADMIN
+  MERCHANT
+}
+
+enum LoginRealm {
+  SUPER_ADMIN
+  TENANT_ADMIN
+  MERCHANT
+}
+
+enum AccountStatus {
+  ACTIVE
+  EXPIRED
+  DISABLED
+}
+
+enum SessionAudience {
+  MERCHANT_WEB
+  TENANT_ADMIN_WEB
+  SUPER_ADMIN_WEB
+  PUBLISHER_DESKTOP
+}
+
+enum KeywordStatus {
+  ENABLED
+  DISABLED
+}
+
+enum KnowledgeLibraryCategory {
+  PRODUCT_SERVICE
+  PRODUCT_FEATURE
+  BRAND_STORY
+  USER_PAIN_POINT
+  TRUST_PROOF
+  CUSTOMER_CASE
+  OTHER
+}
+
+enum ArticleSource {
+  AI_MOCK
+  AI_GENERATED
+  MANUAL
+}
+
+enum AiTaskType {
+  QUESTION_EXPANSION
+  ARTICLE_WRITING
+}
+
+enum AiTaskStatus {
+  QUEUED
+  RUNNING
+  SUCCEEDED
+  PARTIALLY_FAILED
+  FAILED
+  STOPPED
+}
+
+enum ArticleStatus {
+  DRAFT
+  PENDING_REVIEW
+  PUBLISHABLE
+  DISABLED
+}
+
+enum WebsiteTemplate {
+  MINIMAL_ENTERPRISE
+  LOCAL_STORE
+  BRAND_CONTENT
+}
+
+enum WebsiteStatus {
+  NOT_GENERATED
+  LOCAL_READY
+  PUBLISHED
+}
+
+enum MediaPlatform {
+  TOUTIAO
+  DOUYIN
+}
+
+enum MediaAccountStatus {
+  CONNECTED
+  EXPIRED
+  VERIFICATION_REQUIRED
+  UNBOUND
+  CONNECTION_REQUESTED
+}
+
+enum PublishTaskStatus {
+  SCHEDULED
+  QUEUED
+  RUNNING
+  ATTENTION
+  SUCCEEDED
+  FAILED
+  STOPPED
+}
+
+enum PublishAttentionReason {
+  LOGIN_REQUIRED
+  CAPTCHA_REQUIRED
+  MANUAL_CONFIRMATION
+  PLATFORM_CHANGED
+  ASSETS_MISSING
+  CONTENT_INVALID
+  FILL_FAILED
+  SUBMISSION_UNKNOWN
+  SUBMISSION_REJECTED
+  LEASE_EXPIRED
+}
+
+enum PublishDeduplicationMode {
+  PER_PLATFORM
+  ALL_PLATFORMS
+}
+
+enum DoubaoApiStatus {
+  PENDING
+  RUNNING
+  SUCCEEDED
+  FAILED
+}
+
+enum DoubaoCheckBatchScope {
+  SINGLE_MERCHANT
+  ALL_MERCHANTS
+}
+
+enum DoubaoCheckBatchStatus {
+  QUEUED
+  RUNNING
+  SUCCEEDED
+  PARTIALLY_FAILED
+  FAILED
+}
+
+enum EntitlementEntryType {
+  SEAT_RESERVE
+  COMPUTE_ALLOCATE
+  WRITING_ALLOCATE
+  COMPUTE_CONSUME
+  WRITING_CONSUME
+  RELEASE
+}
+
+enum DomainPurpose {
+  CONTENT_ROOT
+  CONTENT_HOST
+  TENANT_ADMIN
+  MERCHANT_WEB
+}
+
+enum DomainBindingStatus {
+  PENDING_VERIFICATION
+  ACTIVE
+  DISABLED
+}
+
+enum ProviderPlatform {
+  DEEPSEEK
+  VOLCENGINE_ARK
+  CUSTOM_OPENAI
+}
+
+enum ProviderProtocol {
+  CHAT_COMPLETIONS
+  RESPONSES
+}
+
+enum ProviderTestStatus {
+  NEVER
+  SUCCEEDED
+  FAILED
+}
+
+enum StorageProvider {
+  ALIBABA_OSS
+}
+
+enum StorageTestStatus {
+  NEVER
+  SUCCEEDED
+  FAILED
+}
+
+model Tenant {
+  id                String        @id @default(cuid())
+  kind              TenantKind
+  name              String
+  parentId          String?
+  whiteLabelId      String?
+  status            AccountStatus @default(ACTIVE)
+  expiresAt         DateTime
+  agentSeatLimit    Int           @default(0)
+  merchantSeatLimit Int           @default(0)
+  closedAt          DateTime?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  parent                   Tenant?                  @relation("TenantTree", fields: [parentId], references: [id])
+  children                 Tenant[]                 @relation("TenantTree")
+  whiteLabel               Tenant?                  @relation("WhiteLabelScope", fields: [whiteLabelId], references: [id])
+  scopedTenants            Tenant[]                 @relation("WhiteLabelScope")
+  users                    User[]
+  profile                  MerchantProfile?
+  profileVersions          MerchantProfileVersion[]
+  brand                    BrandConfiguration?
+  quota                    QuotaBalance?
+  keywords                 Keyword[]
+  questions                Question[]
+  knowledgeLibraries       KnowledgeLibrary[]
+  galleries                Gallery[]
+  uploadSessions           GalleryUploadSession[]
+  writingInstructions      WritingInstruction[]
+  articles                 Article[]
+  articleVersions          ArticleVersion[]
+  website                  MerchantWebsite?
+  websiteMetrics           WebsiteMetricDaily[]
+  websitePhoneEvents       WebsitePhoneEvent[]
+  doubaoResults            DoubaoCheckResult[]
+  doubaoCheckBatches       DoubaoCheckBatch[]
+  mediaAccounts            MediaAccount[]
+  mediaSessionBackups      MediaSessionBackup[]
+  publisherDevices         PublisherDevice[]
+  publishBatches           PublishBatch[]
+  publishTasks             PublishTask[]
+  ownedDomainBindings      DomainBinding[]
+  sourceEntitlementEntries EntitlementLedger[]      @relation("EntitlementSource")
+  targetEntitlementEntries EntitlementLedger[]      @relation("EntitlementTarget")
+  auditLogs                AuditLog[]
+  providerConfigs          ProviderConfig[]
+  storageConfig            ObjectStorageConfig?
+  aiTasks                  AiGenerationTask[]
+
+  @@index([parentId])
+  @@index([whiteLabelId])
+  @@index([kind, status])
+}
+
+model User {
+  id                String        @id @default(cuid())
+  usernameCanonical String
+  loginRealm        LoginRealm    @default(MERCHANT)
+  passwordHash      String
+  role              UserRole
+  tenantId          String?
+  status            AccountStatus @default(ACTIVE)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  tenant   Tenant?   @relation(fields: [tenantId], references: [id])
+  sessions Session[]
+
+  @@unique([usernameCanonical, loginRealm])
+  @@index([tenantId, role])
+}
+
+model Session {
+  id                String          @id @default(cuid())
+  tokenHash         String          @unique
+  userId            String
+  audience          SessionAudience
+  publisherDeviceId String?
+  expiresAt         DateTime
+  revokedAt         DateTime?
+  createdAt         DateTime        @default(now())
+
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  publisherDevice PublisherDevice? @relation(fields: [publisherDeviceId], references: [id], onDelete: SetNull)
+
+  @@index([userId, audience, expiresAt])
+}
+
+model PublisherDevice {
+  id            String    @id @default(cuid())
+  tenantId      String
+  deviceRefHash String
+  lastSeenAt    DateTime  @default(now())
+  revokedAt     DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  tenant             Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  sessions           Session[]
+  leasedPublishTasks PublishTask[] @relation("PublishTaskLease")
+  mediaSessionBackups MediaSessionBackup[]
+
+  @@unique([tenantId, deviceRefHash])
+  @@index([tenantId, lastSeenAt])
+}
+
+model PlatformUpdatePolicy {
+  id             String   @id
+  enabled        Boolean  @default(false)
+  feedUrl        String?
+  minimumVersion String?
+  releaseNotes   String   @default("")
+  updatedAt      DateTime @updatedAt
+}
+
+model PlatformDomainConfiguration {
+  id                  String   @id
+  superAdminHostname  String?
+  tenantAdminHostname String?
+  merchantWebHostname String?
+  contentRootHostname String?
+  updatedAt           DateTime @updatedAt
+}
+
+model BrandConfiguration {
+  id        String   @id @default(cuid())
+  tenantId  String   @unique
+  nickname  String
+  logoUrl   String
+  version   Int      @default(1)
+  updatedAt DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
+model QuotaBalance {
+  id                     String   @id @default(cuid())
+  tenantId               String   @unique
+  keywordLimit           Int      @default(0)
+  computePointsAvailable Int      @default(0)
+  computePointsConsumed  Int      @default(0)
+  computePointsReserved  Int      @default(0)
+  writingLimit           Int      @default(0)
+  writingUsed            Int      @default(0)
+  writingReserved        Int      @default(0)
+  imageStorageBytes      BigInt   @default(0)
+  updatedAt              DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+}
+
+model MerchantProfile {
+  id             String   @id @default(cuid())
+  tenantId       String   @unique
+  companyName    String
+  aliases        Json     @default("[]")
+  industry       String   @default("")
+  coreBusiness   String   @default("")
+  serviceAreas   Json     @default("[]")
+  introduction   String   @default("")
+  advantages     Json     @default("[]")
+  products       Json     @default("[]")
+  address        String   @default("")
+  phone          String   @default("")
+  wechat         String   @default("")
+  businessHours  String   @default("")
+  credentials    Json     @default("[]")
+  cases          Json     @default("[]")
+  proofMaterials Json     @default("[]")
+  version        Int      @default(1)
+  updatedAt      DateTime @updatedAt
+
+  tenant   Tenant                   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  versions MerchantProfileVersion[]
+}
+
+model MerchantProfileVersion {
+  id             String   @id @default(cuid())
+  profileId      String
+  tenantId       String
+  version        Int
+  companyName    String
+  aliases        Json     @default("[]")
+  industry       String   @default("")
+  coreBusiness   String   @default("")
+  serviceAreas   Json     @default("[]")
+  introduction   String   @default("")
+  advantages     Json     @default("[]")
+  products       Json     @default("[]")
+  address        String   @default("")
+  phone          String   @default("")
+  wechat         String   @default("")
+  businessHours  String   @default("")
+  credentials    Json     @default("[]")
+  cases          Json     @default("[]")
+  proofMaterials Json     @default("[]")
+  createdAt      DateTime @default(now())
+
+  profile  MerchantProfile   @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  tenant   Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  websites MerchantWebsite[]
+
+  @@unique([profileId, version])
+  @@index([tenantId, profileId, version])
+}
+
+model Keyword {
+  id             String        @id @default(cuid())
+  tenantId       String
+  name           String
+  normalizedName String
+  brandTerms     Json          @default("[]")
+  status         KeywordStatus @default(ENABLED)
+  deletedAt      DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  tenant    Tenant     @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  questions Question[]
+  articles  Article[]
+
+  @@unique([tenantId, normalizedName])
+  @@index([tenantId, status, deletedAt])
+}
+
+model Question {
+  id             String        @id @default(cuid())
+  tenantId       String
+  keywordId      String
+  text           String
+  normalizedText String
+  status         KeywordStatus @default(ENABLED)
+  articleCreated Boolean       @default(false)
+  checkedAt      DateTime?
+  deletedAt      DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  tenant        Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  keyword       Keyword             @relation(fields: [keywordId], references: [id], onDelete: Cascade)
+  article       Article?
+  doubaoResults DoubaoCheckResult[]
+
+  @@unique([keywordId, normalizedText])
+  @@index([tenantId, keywordId, status, deletedAt])
+}
+
+model KnowledgeLibrary {
+  id              String                   @id @default(cuid())
+  tenantId        String
+  name            String
+  category        KnowledgeLibraryCategory
+  content         String
+  companyName     String                   @default("")
+  brandAlias      String                   @default("")
+  productServices String                   @default("")
+  productFeatures String                   @default("")
+  brandStory      String                   @default("")
+  userPainPoints  String                   @default("")
+  trustProof      String                   @default("")
+  customerCases   String                   @default("")
+  otherInfo       String                   @default("")
+  deletedAt       DateTime?
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, deletedAt, updatedAt])
+}
+
+model Gallery {
+  id          String    @id @default(cuid())
+  tenantId    String
+  name        String
+  description String    @default("")
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  tenant         Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  images         GalleryImage[]
+  uploadSessions GalleryUploadSession[]
+  articles       Article[]
+
+  @@index([tenantId, deletedAt, updatedAt])
+}
+
+model GalleryImage {
+  id        String    @id @default(cuid())
+  galleryId String
+  fileName  String
+  mimeType  String
+  sizeBytes Int
+  objectKey String?
+  publicUrl String?
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  gallery Gallery @relation(fields: [galleryId], references: [id], onDelete: Cascade)
+
+  @@index([galleryId, deletedAt, createdAt])
+}
+
+model GalleryUploadSession {
+  id          String    @id @default(cuid())
+  tenantId    String
+  galleryId   String
+  objectKey   String    @unique
+  fileName    String
+  mimeType    String
+  sizeBytes   Int
+  expiresAt   DateTime
+  completedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  tenant  Tenant  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  gallery Gallery @relation(fields: [galleryId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, galleryId, expiresAt])
+}
+
+model WritingInstruction {
+  id        String    @id @default(cuid())
+  tenantId  String
+  name      String
+  content   String
+  isSystem  Boolean   @default(false)
+  deletedAt DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  articles Article[]
+
+  @@index([tenantId, deletedAt, updatedAt])
+}
+
+model Article {
+  id                  String        @id @default(cuid())
+  tenantId            String
+  title               String
+  content             String
+  source              ArticleSource @default(MANUAL)
+  status              ArticleStatus @default(DRAFT)
+  keywordId           String?
+  questionId          String?       @unique
+  knowledgeLibraryIds Json          @default("[]")
+  galleryId           String?
+  imageCount          Int           @default(0)
+  galleryImageIds     Json          @default("[]")
+  instructionId       String?
+  currentVersion      Int           @default(1)
+  deletedAt           DateTime?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  tenant       Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  keyword      Keyword?            @relation(fields: [keywordId], references: [id], onDelete: SetNull)
+  question     Question?           @relation(fields: [questionId], references: [id], onDelete: SetNull)
+  gallery      Gallery?            @relation(fields: [galleryId], references: [id], onDelete: SetNull)
+  instruction  WritingInstruction? @relation(fields: [instructionId], references: [id], onDelete: SetNull)
+  versions     ArticleVersion[]
+  publishTasks PublishTask[]
+
+  @@index([tenantId, deletedAt, updatedAt])
+  @@index([tenantId, status])
+}
+
+model ArticleVersion {
+  id                  String        @id @default(cuid())
+  articleId           String
+  tenantId            String
+  version             Int
+  title               String
+  content             String
+  source              ArticleSource
+  status              ArticleStatus
+  knowledgeLibraryIds Json          @default("[]")
+  galleryId           String?
+  imageCount          Int           @default(0)
+  galleryImageIds     Json          @default("[]")
+  instructionId       String?
+  createdAt           DateTime      @default(now())
+
+  article      Article       @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  publishTasks PublishTask[]
+
+  @@unique([articleId, version])
+  @@index([tenantId, articleId, version])
+}
+
+model MediaSessionBackup {
+  id                  String   @id @default(cuid())
+  tenantId            String
+  mediaAccountId      String   @unique
+  sourceDeviceId      String?
+  schemaVersion       Int
+  payloadCiphertext   Bytes
+  payloadNonce        Bytes
+  payloadAuthTag      Bytes
+  wrappedDataKey      Bytes
+  keyWrapNonce        Bytes
+  keyWrapAuthTag      Bytes
+  keyProvider         String
+  keyVersion          String
+  payloadSha256       String
+  payloadBytes        Int
+  capturedAt          DateTime
+  lastRestoredAt      DateTime?
+  revokedAt           DateTime?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  tenant        Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  mediaAccount  MediaAccount     @relation(fields: [mediaAccountId], references: [id], onDelete: Cascade)
+  sourceDevice  PublisherDevice? @relation(fields: [sourceDeviceId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, revokedAt, updatedAt])
+  @@index([sourceDeviceId])
+}
+
+model AiGenerationTask {
+  id                    String       @id @default(cuid())
+  tenantId              String
+  type                  AiTaskType
+  status                AiTaskStatus @default(QUEUED)
+  idempotencyKey        String       @unique
+  request               Json
+  result                Json         @default("{}")
+  totalCount            Int
+  completedCount        Int          @default(0)
+  failedCount           Int          @default(0)
+  computePointsReserved Int          @default(0)
+  writingReserved       Int          @default(0)
+  failureReason         String?
+  startedAt             DateTime?
+  completedAt           DateTime?
+  createdAt             DateTime     @default(now())
+  updatedAt             DateTime     @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, status, createdAt])
+}
+
+model MerchantWebsite {
+  id                   String          @id @default(cuid())
+  tenantId             String          @unique
+  template             WebsiteTemplate @default(MINIMAL_ENTERPRISE)
+  hostname             String?
+  status               WebsiteStatus   @default(NOT_GENERATED)
+  lastGeneratedAt      DateTime?
+  profileVersionId     String?
+  version              Int             @default(1)
+  artifactObjectPrefix String?
+  artifactManifestUrl  String?
+  artifactUploadedAt   DateTime?
+  updatedAt            DateTime        @updatedAt
+
+  tenant         Tenant                  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  profileVersion MerchantProfileVersion? @relation(fields: [profileVersionId], references: [id], onDelete: SetNull)
+
+  @@index([profileVersionId])
+}
+
+model WebsiteMetricDaily {
+  id                 String   @id @default(cuid())
+  tenantId           String
+  date               DateTime
+  phoneExposureCount Int      @default(0)
+  phoneClickCount    Int      @default(0)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, date])
+  @@index([tenantId, date])
+}
+
+model WebsitePhoneEvent {
+  id          String   @id @default(cuid())
+  tenantId    String
+  date        DateTime
+  type        String
+  page        String
+  visitorHash String
+  createdAt   DateTime @default(now())
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, date, type, page, visitorHash])
+  @@index([tenantId, date])
+}
+
+model DoubaoCheckResult {
+  id            String          @id @default(cuid())
+  tenantId      String
+  batchId       String?
+  questionId    String?
+  question      String
+  answer        String
+  sources       Json            @default("[]")
+  matched       Boolean
+  matchedName   String?
+  checkedAt     DateTime?
+  apiStatus     DoubaoApiStatus @default(PENDING)
+  failureReason String?
+
+  tenant         Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  batch          DoubaoCheckBatch? @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  sourceQuestion Question?         @relation(fields: [questionId], references: [id], onDelete: SetNull)
+
+  @@unique([batchId, questionId])
+  @@index([tenantId, checkedAt])
+  @@index([batchId, apiStatus])
+}
+
+model DoubaoCheckBatch {
+  id                  String                 @id @default(cuid())
+  whiteLabelId        String
+  scope               DoubaoCheckBatchScope
+  status              DoubaoCheckBatchStatus @default(QUEUED)
+  idempotencyKey      String                 @unique
+  providerConfigId    String
+  providerAlias       String
+  providerModel       String
+  targetMerchantCount Int
+  totalCount          Int
+  completedCount      Int                    @default(0)
+  successfulCount     Int                    @default(0)
+  failedCount         Int                    @default(0)
+  matchedCount        Int                    @default(0)
+  requestedByUserId   String
+  failureReason       String?
+  startedAt           DateTime?
+  completedAt         DateTime?
+  createdAt           DateTime               @default(now())
+  updatedAt           DateTime               @updatedAt
+
+  whiteLabel Tenant              @relation(fields: [whiteLabelId], references: [id], onDelete: Cascade)
+  results    DoubaoCheckResult[]
+
+  @@index([whiteLabelId, status, createdAt])
+}
+
+model MediaAccount {
+  id               String             @id @default(cuid())
+  tenantId         String
+  platform         MediaPlatform
+  status           MediaAccountStatus @default(UNBOUND)
+  maskedName       String?
+  localReferenceId String?
+  lastVerifiedAt   DateTime?
+  lastHeartbeatAt  DateTime?
+  failureReason    String?
+  updatedAt        DateTime           @updatedAt
+
+  tenant       Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  publishTasks PublishTask[]
+  sessionBackup MediaSessionBackup?
+
+  @@unique([tenantId, platform, localReferenceId])
+  @@index([tenantId, platform, status])
+}
+
+model PublishBatch {
+  id                    String                   @id @default(cuid())
+  tenantId              String
+  idempotencyKey        String                   @unique
+  toutiaoDailyLimit     Int                      @default(3)
+  douyinDailyLimit      Int                      @default(3)
+  timezone              String                   @default("Asia/Shanghai")
+  deduplicationMode     PublishDeduplicationMode @default(PER_PLATFORM)
+  totalCount            Int
+  estimatedTaskCount    Int
+  skippedDuplicateCount Int                      @default(0)
+  createdAt             DateTime                 @default(now())
+
+  tenant Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  tasks  PublishTask[]
+
+  @@index([tenantId, createdAt])
+}
+
+model PublishTask {
+  id               String            @id @default(cuid())
+  tenantId         String
+  batchId          String?
+  mediaAccountId   String?
+  articleId        String
+  articleVersionId String?
+  platform         MediaPlatform
+  status           PublishTaskStatus @default(QUEUED)
+  leaseDeviceId    String?
+  leaseExpiresAt   DateTime?
+  leaseHeartbeatAt DateTime?
+  completedAt      DateTime?
+  resultUrl        String?
+  failureReason    String?
+  attentionReason  PublishAttentionReason?
+  scheduledAt      DateTime          @default(now())
+  attemptCount     Int               @default(0)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  tenant         Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  batch          PublishBatch?    @relation(fields: [batchId], references: [id], onDelete: SetNull)
+  mediaAccount   MediaAccount?    @relation(fields: [mediaAccountId], references: [id], onDelete: SetNull)
+  article        Article          @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  articleVersion ArticleVersion?  @relation(fields: [articleVersionId], references: [id], onDelete: SetNull)
+  leaseDevice    PublisherDevice? @relation("PublishTaskLease", fields: [leaseDeviceId], references: [id], onDelete: SetNull)
+
+  @@unique([tenantId, articleId, platform])
+  @@index([tenantId, status, createdAt])
+  @@index([tenantId, status, scheduledAt])
+  @@index([status, leaseExpiresAt])
+}
+
+model EntitlementLedger {
+  id             String               @id @default(cuid())
+  sourceTenantId String?
+  targetTenantId String?
+  type           EntitlementEntryType
+  quantity       Int
+  idempotencyKey String               @unique
+  detail         Json                 @default("{}")
+  createdAt      DateTime             @default(now())
+
+  sourceTenant Tenant? @relation("EntitlementSource", fields: [sourceTenantId], references: [id], onDelete: SetNull)
+  targetTenant Tenant? @relation("EntitlementTarget", fields: [targetTenantId], references: [id], onDelete: SetNull)
+
+  @@index([sourceTenantId, createdAt])
+  @@index([targetTenantId, createdAt])
+}
+
+model DomainBinding {
+  id                      String              @id @default(cuid())
+  tenantId                String
+  hostname                String              @unique
+  purpose                 DomainPurpose
+  status                  DomainBindingStatus @default(PENDING_VERIFICATION)
+  verificationToken       String?             @unique
+  verificationRequestedAt DateTime?
+  ownershipVerifiedAt     DateTime?
+  createdAt               DateTime            @default(now())
+  updatedAt               DateTime            @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, purpose, status])
+}
+
+model AuditLog {
+  id            String   @id @default(cuid())
+  tenantId      String?
+  actorUserId   String?
+  actorTenantId String?
+  action        String
+  entityType    String
+  entityId      String
+  detail        Json     @default("{}")
+  createdAt     DateTime @default(now())
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId, createdAt])
+  @@index([actorUserId, createdAt])
+}
+
+model ProviderConfig {
+  id                  String             @id @default(cuid())
+  tenantId            String
+  alias               String
+  platform            ProviderPlatform
+  protocol            ProviderProtocol
+  baseUrl             String
+  modelName           String
+  apiKeyCiphertext    String
+  apiKeyNonce         String
+  keyMask             String
+  supportsWriting     Boolean            @default(false)
+  supportsDoubaoCheck Boolean            @default(false)
+  supportsWebSearch   Boolean            @default(false)
+  enabled             Boolean            @default(false)
+  lastTestAt          DateTime?
+  lastTestStatus      ProviderTestStatus @default(NEVER)
+  lastTestError       String?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, alias])
+  @@index([tenantId, enabled])
+}
+
+model ObjectStorageConfig {
+  id                        String            @id @default(cuid())
+  tenantId                  String            @unique
+  provider                  StorageProvider   @default(ALIBABA_OSS)
+  region                    String
+  bucket                    String
+  cdnBaseUrl                String?
+  accessKeyIdCiphertext     String
+  accessKeyIdNonce          String
+  accessKeySecretCiphertext String
+  accessKeySecretNonce      String
+  accessKeyIdMask           String
+  enabled                   Boolean           @default(false)
+  lastTestAt                DateTime?
+  lastTestStatus            StorageTestStatus @default(NEVER)
+  lastTestError             String?
+  createdAt                 DateTime          @default(now())
+  updatedAt                 DateTime          @updatedAt
+
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([enabled])
+}
