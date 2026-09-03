@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-labelledby="title">
+  <title id="title">豆包获客默认品牌标志</title>
+  <defs>
+    <linearGradient id="brand-gradient" x1="8" y1="6" x2="40" y2="43" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#45c8ff"/>
+      <stop offset="0.5" stop-color="#5968ff"/>
+      <stop offset="1" stop-color="#8b5cf6"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="40" height="40" rx="12" fill="#0e1d3a"/>
+  <path d="M16 11v17.2c0 5.4 3.5 8.8 8.3 8.8 5.1 0 8.7-3.6 8.7-8.8V15h-6v13.2c0 1.8-.9 3-2.7 3-1.5 0-2.3-1.1-2.3-3V11h-6Z" fill="url(#brand-gradient)"/>
+  <circle cx="18.8" cy="10.2" r="3.2" fill="#78dbff"/>
+</svg>

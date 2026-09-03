@@ -1,0 +1,579 @@
+/* ==========================================================================
+   星枢豆包获客 · 商户端设计系统（蓝色信号台）
+   方向：企业内容增长流水线 + 克制的蓝色科技感
+   原则：可读性优先、单一蓝色主线、统一层级、轻量动效、真实数据优先
+   说明：packages/ui-tokens 为四端共享深色令牌，不可修改；
+        本文件在商户端局部覆盖为浅色工作台体系。
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  color-scheme: light;
+
+  /* 色彩 · 画布与表面 */
+  --color-canvas: #f4f7fb;
+  --color-canvas-elevated: #f8fafd;
+  --color-shell: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-strong: #ffffff;
+  --color-surface-soft: #f6f8fb;
+  --color-surface-tint: #eef4ff;
+
+  /* 色彩 · 边框（细发丝） */
+  --color-border: #e0e7f0;
+  --color-border-strong: #cbd7e6;
+
+  /* 色彩 · 文字 */
+  --color-text: #0b1f38;
+  --color-text-secondary: #3b536f;
+  --color-text-muted: #5f738d;
+
+  /* 色彩 · 主色与状态 */
+  --color-primary: #1d63e9;
+  --color-primary-bright: #2a7df4;
+  --color-primary-strong: #124bb7;
+  --color-primary-soft: #eaf2ff;
+  --color-cyan: #19b8dc;
+  --color-teal: #0ea684;
+  --color-success: #0e8f70;
+  --color-warning: #a96712;
+  --color-danger: #cf3f5a;
+  --color-champagne: #2865cb;
+
+  /* 渐变（克制的蓝青） */
+  --gradient-primary: linear-gradient(118deg, #1d5fe3 0%, #2479ee 62%, #19b8dc 100%);
+  --gradient-chart: linear-gradient(90deg, #1d63e9 0%, #2a7df4 58%, #19b8dc 100%);
+  --gradient-panel: #ffffff;
+
+  /* 阴影（轻量、低漂浮感） */
+  --shadow-panel: 0 1px 2px rgba(15, 35, 65, 0.025), 0 8px 24px rgba(30, 67, 118, 0.05);
+  --shadow-panel-hover: 0 3px 7px rgba(15, 35, 65, 0.04), 0 14px 32px rgba(22, 72, 151, 0.09);
+  --shadow-focus: 0 0 0 3px rgba(29, 99, 233, 0.15);
+  --shadow-dialog: 0 28px 80px rgba(14, 31, 57, 0.2);
+
+  /* 圆角 */
+  --radius-sm: 7px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 18px;
+
+  /* 字体 */
+  --font-sans: "Segoe UI Variable", "SF Pro Text", "PingFang SC", "Microsoft YaHei UI", "Microsoft YaHei", system-ui, sans-serif;
+  --font-display: var(--font-sans);
+  --font-mono: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --merchant-text-caption: 13px;
+  --merchant-text-helper: 14px;
+  --merchant-text-body: 16px;
+  --merchant-text-control: 15px;
+  --merchant-text-title-sm: 18px;
+  --merchant-text-title-md: 24px;
+  --merchant-text-title-lg: 32px;
+  --merchant-text-display: 44px;
+  --merchant-leading-tight: 1.22;
+  --merchant-leading-body: 1.58;
+
+  /* 间距、控件与动效 */
+  --control-height: 44px;
+  --space-page: clamp(18px, 1.45vw, 28px);
+  --ease-standard: cubic-bezier(.2, .72, .2, 1);
+  --transition-fast: 150ms var(--ease-standard);
+  --transition-base: 220ms var(--ease-standard);
+
+  /* Element Plus 对齐 */
+  --el-color-primary: #1d63e9;
+  --el-border-radius-base: 9px;
+  --el-font-size-base: 15px;
+  --el-font-size-small: 14px;
+}
+
+html {
+  min-width: 320px;
+  min-height: 100%;
+  background: var(--color-canvas);
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  color: var(--color-text);
+  background: var(--color-canvas);
+  font-family: var(--font-sans);
+  font-size: var(--merchant-text-body);
+  font-weight: 400;
+  line-height: var(--merchant-leading-body);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/*
+   可读性安全基线：业务工作区不再使用 8–11px 承载正文、表单、状态或操作。
+   官网缩略预览保持按比例缩放，避免预览内容反向撑大布局。
+*/
+html.light-admin .page-content :where(input, textarea, select):not(.website-live-preview *):not(.live-preview *) {
+  font-size: var(--merchant-text-control) !important;
+}
+
+html.light-admin .page-content :where(button, .el-button):not(.website-live-preview *):not(.live-preview *):not(.template-live-sample *):not(.mini-site *) {
+  font-size: var(--merchant-text-control) !important;
+}
+
+html.light-admin .page-content small:not(.website-live-preview *):not(.live-preview *):not(.template-live-sample *):not(.mini-site *) {
+  font-size: var(--merchant-text-helper) !important;
+}
+
+html.light-admin .page-content :where(th, td):not(.website-live-preview *):not(.live-preview *) {
+  font-size: var(--merchant-text-body) !important;
+}
+
+html.light-admin .page-content :where(dt, dd):not(.website-live-preview *):not(.live-preview *) {
+  font-size: var(--merchant-text-helper) !important;
+}
+
+html.light-admin .page-content :where(
+  .field > span,
+  .field-label,
+  .status-pill,
+  .status-badge,
+  .count-badge,
+  .asset-count,
+  .version-chip,
+  .tag,
+  .alias-tag,
+  .type-tag,
+  .brand-tags span,
+  .brand-tags i,
+  .brand-tags em,
+  .status-switch i,
+  .question-count small,
+  .table-footer,
+  .row-actions button
+):not(.website-live-preview *):not(.live-preview *):not(.template-live-sample *) {
+  font-size: var(--merchant-text-helper) !important;
+}
+
+html.light-admin .page-content :where(
+  .page-intro p,
+  .notice p,
+  .helper-text,
+  .field small,
+  .table-toolbar > span,
+  .table-footer,
+  .content-preview,
+  .asset-heading p,
+  .cover-heading p,
+  .task-detail,
+  .empty-state p,
+  .empty p,
+  .error-panel p
+):not(.website-live-preview *):not(.live-preview *):not(.template-live-sample *):not(.mini-site *) {
+  font-size: var(--merchant-text-helper) !important;
+  line-height: 1.65;
+}
+
+html.light-admin .page-content :where(.eyebrow, .section-kicker):not(.website-live-preview *):not(.live-preview *):not(.template-live-sample *):not(.mini-site *) {
+  font-size: var(--merchant-text-caption) !important;
+}
+
+html.light-admin .website-dialog :where(.form-card-heading span, .preview-toolbar span) {
+  font-size: var(--merchant-text-caption) !important;
+}
+
+html.light-admin .website-dialog :where(.position-heading span, .preview-toolbar small) {
+  font-size: var(--merchant-text-helper) !important;
+}
+
+html.light-admin .page-content :where(h1, h2, h3):not(.website-live-preview *):not(.live-preview *):not(.template-live-sample *):not(.mini-site *) {
+  font-family: var(--font-display);
+  line-height: var(--merchant-leading-tight);
+  text-wrap: balance;
+}
+
+html.light-admin .page-content :where(.page-intro, .page-header) h2 {
+  color: var(--color-text);
+  font-size: var(--merchant-text-title-lg) !important;
+  font-weight: 730;
+  letter-spacing: -0.035em;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid #7aa7f5;
+  outline-offset: 2px;
+}
+
+#app {
+  min-height: 100vh;
+}
+
+html.light-admin :where(h1, h2, h3, h4, h5, h6) {
+  scroll-margin-top: 84px;
+}
+
+/* --------------------------------------------------------------------------
+   通用表面与按钮契约（各业务页共用）
+   -------------------------------------------------------------------------- */
+
+.surface-panel {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: var(--shadow-panel);
+}
+
+.page-route-enter-active,
+.page-route-leave-active {
+  transition: opacity 170ms ease, transform 220ms cubic-bezier(.2, .72, .2, 1);
+}
+
+.page-route-enter-from {
+  opacity: 0;
+  transform: translateY(6px);
+}
+
+.page-route-leave-to {
+  opacity: 0;
+  transform: translateY(-3px);
+}
+
+html.light-admin .eyebrow,
+html.light-admin .panel-kicker,
+html.light-admin .card-kicker {
+  color: var(--color-primary);
+}
+
+html.light-admin .primary-button,
+html.light-admin .create-button,
+html.light-admin .icon-button.is-primary {
+  min-height: var(--control-height);
+  border-color: transparent;
+  border-radius: 9px;
+  color: #ffffff;
+  background: var(--gradient-primary);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.2);
+  font-weight: 650;
+}
+
+html.light-admin .primary-button:hover,
+html.light-admin .create-button:hover,
+html.light-admin .icon-button.is-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 22px rgba(37, 99, 235, 0.26);
+}
+
+html.light-admin .secondary-button,
+html.light-admin .compact-button,
+html.light-admin .state-button {
+  min-height: var(--control-height);
+  border-color: var(--color-border-strong);
+  border-radius: 9px;
+  color: var(--color-text-secondary);
+  background: #ffffff;
+  box-shadow: 0 1px 2px rgba(24, 44, 73, 0.04);
+  font-weight: 600;
+}
+
+html.light-admin .secondary-button:hover,
+html.light-admin .compact-button:hover,
+html.light-admin .state-button:hover {
+  border-color: #93b4ec;
+  color: var(--color-primary);
+  background: #f4f8ff;
+  transform: translateY(-1px);
+}
+
+html.light-admin .danger {
+  border-color: #f2cbd3;
+  color: var(--color-danger);
+  background: #fff5f7;
+}
+
+html.light-admin input:not([type='checkbox']):not([type='radio']),
+html.light-admin textarea,
+html.light-admin select {
+  border-color: var(--color-border-strong);
+  border-radius: 9px;
+  color: var(--color-text);
+  background-color: #ffffff;
+  line-height: 1.5;
+}
+
+html.light-admin input::placeholder,
+html.light-admin textarea::placeholder {
+  color: #61748c;
+}
+
+html.light-admin input:focus,
+html.light-admin textarea:focus,
+html.light-admin select:focus {
+  border-color: #5b93f0;
+  box-shadow: var(--shadow-focus);
+}
+
+html.light-admin .count-badge,
+html.light-admin .status-pill,
+html.light-admin .version-chip,
+html.light-admin .asset-count,
+html.light-admin .brand-tags span,
+html.light-admin .alias-tag,
+html.light-admin .type-tag.system,
+html.light-admin .tag.ai_mock {
+  border-color: #d3e2f7;
+  color: #1d5fd1;
+  background: #eef4fe;
+}
+
+html.light-admin .page-content :where(.keyword-name, .library-name, .instruction-name) {
+  color: var(--color-text);
+  font-size: var(--merchant-text-control) !important;
+  font-weight: 650;
+}
+
+html.light-admin .page-content :where(
+  .asset-heading > span,
+  .cover-heading > span,
+  .cover-heading button,
+  .paste-uploading
+) {
+  color: var(--color-primary) !important;
+}
+
+html.light-admin .page-content .paste-uploading > span {
+  border-color: rgba(29, 99, 233, 0.24);
+  border-top-color: var(--color-primary);
+}
+
+html.light-admin .page-content :where(.row-action.view, .row-action.edit) {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+}
+
+html.light-admin .page-content :where(.empty-state, .question-empty) .el-icon {
+  color: var(--color-primary);
+}
+
+html.light-admin .page-content .status-switch span {
+  transition: background var(--transition-fast);
+}
+
+html.light-admin .page-content .status-switch span::after {
+  transition: transform var(--transition-fast);
+}
+
+html.light-admin .search-field,
+html.light-admin .instruction-item,
+html.light-admin .library-item,
+html.light-admin .article-item,
+html.light-admin .task-history-item,
+html.light-admin .asset-card,
+html.light-admin .pick,
+html.light-admin .image-count button {
+  border-color: var(--color-border);
+  color: var(--color-text);
+  background: #ffffff;
+}
+
+html.light-admin .instruction-item:hover,
+html.light-admin .instruction-item.is-selected,
+html.light-admin .library-item:hover,
+html.light-admin .library-item.is-selected,
+html.light-admin .article-item:hover,
+html.light-admin .article-item.is-selected,
+html.light-admin .keyword-item:hover,
+html.light-admin .keyword-item.is-selected,
+html.light-admin .task-history-item.selected,
+html.light-admin .pick:has(input:checked) {
+  border-color: #a9c6f4;
+  color: var(--color-text);
+  background: linear-gradient(135deg, #eef4ff, #f6faff);
+  box-shadow: 0 6px 16px rgba(39, 104, 190, 0.07);
+}
+
+html.light-admin .mock-expand,
+html.light-admin .cost-box,
+html.light-admin .asset-picker,
+html.light-admin .boundary-notice,
+html.light-admin .notice-panel,
+html.light-admin .mock-notice,
+html.light-admin .notice,
+html.light-admin .data-boundary,
+html.light-admin .asset-note,
+html.light-admin .system-lock {
+  border-color: var(--color-border);
+  color: var(--color-text-secondary);
+  background: var(--color-surface-soft);
+}
+
+html.light-admin .skeleton span,
+html.light-admin .skeleton-list span,
+html.light-admin .keyword-skeleton span,
+html.light-admin .question-loading span,
+html.light-admin .image-skeleton span,
+html.light-admin .asset-loading span {
+  background: linear-gradient(90deg, #eef3fa, #e2ebf7, #eef3fa);
+  background-size: 220% 100%;
+}
+
+/* Element Plus 轻量覆盖 */
+html.light-admin .el-button {
+  min-height: 40px;
+  border-radius: 9px;
+  font-weight: 600;
+  transition: color 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+
+html.light-admin .el-button:not(:disabled):hover {
+  transform: translateY(-1px);
+}
+
+html.light-admin .el-button:not(:disabled):active {
+  transform: translateY(0) scale(0.985);
+}
+
+html.light-admin .el-input__wrapper {
+  min-height: var(--control-height);
+  border-radius: 9px;
+  box-shadow: 0 0 0 1px var(--color-border-strong) inset;
+}
+
+html.light-admin .el-textarea__inner,
+html.light-admin .el-select__wrapper {
+  border-radius: 9px;
+  font-size: var(--merchant-text-control);
+}
+
+html.light-admin .el-select__wrapper {
+  min-height: var(--control-height);
+}
+
+html.light-admin .el-form-item__label,
+html.light-admin .el-checkbox__label,
+html.light-admin .el-radio__label {
+  color: var(--color-text-secondary);
+  font-size: var(--merchant-text-helper);
+}
+
+html.light-admin .el-dialog {
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-dialog);
+}
+
+html.light-admin .el-overlay-dialog {
+  overscroll-behavior: contain;
+}
+
+html.light-admin :where(table, .metric-value, .count-badge, .status-pill) {
+  font-variant-numeric: tabular-nums;
+}
+
+html.light-admin .el-overlay {
+  background-color: rgba(23, 38, 60, 0.36);
+  backdrop-filter: blur(4px);
+}
+
+html.light-admin ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+html.light-admin ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+html.light-admin ::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 99px;
+  background: rgba(96, 128, 172, 0.32);
+  background-clip: padding-box;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+::selection {
+  color: #ffffff;
+  background: rgba(37, 99, 235, 0.72);
+}
+
+/* --------------------------------------------------------------------------
+   动效：150–240ms，transform / opacity 优先，支持减少动效偏好
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html.light-admin .primary-button,
+  html.light-admin .secondary-button,
+  html.light-admin .compact-button,
+  html.light-admin .state-button,
+  .surface-panel {
+    transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  html.light-admin .primary-button:hover,
+  html.light-admin .create-button:hover,
+  html.light-admin .icon-button.is-primary:hover,
+  html.light-admin .secondary-button:hover,
+  html.light-admin .compact-button:hover,
+  html.light-admin .state-button:hover,
+  html.light-admin .el-button:not(:disabled):hover {
+    transform: translateY(-1px);
+  }
+}
+
+@media (max-width: 760px) {
+  :root {
+    --merchant-text-body: 15px;
+    --merchant-text-title-lg: 26px;
+    --space-page: 14px;
+  }
+}

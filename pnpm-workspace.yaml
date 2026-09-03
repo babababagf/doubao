@@ -1,0 +1,12 @@
+packages:
+  - apps/*
+  - packages/*
+allowBuilds:
+  '@prisma/engines': true
+  argon2: true
+  electron-winstaller: true
+  esbuild: true
+  # BullMQ 的可选原生性能扩展；本项目不执行其第三方构建，使用纯 JS 回退。
+  msgpackr-extract: false
+  msw: true
+  prisma: true
